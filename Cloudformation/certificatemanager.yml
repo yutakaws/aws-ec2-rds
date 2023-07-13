@@ -1,0 +1,66 @@
+---
+### [Change System Name] ***
+### [Change Domain Name] ***.***
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create Certificate
+
+Parameters:
+  SystemName:
+    Description: System name
+    Type: String
+    Default: *** ### [Change System Name]
+  DomainName:
+    Description: Domain name
+    Type: String
+    Default: ***.*** ### [Change Domain Name]
+  Environment:
+    Description: Environment
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - stg
+      - dev
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Environment Configuration"
+        Parameters:
+          - SystemName
+          - DomainName
+          - Environment
+
+Conditions:
+  isProd: !Equals [ !Ref Environment, prod ]
+
+Resources:
+  ## Certificate
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !If [ isProd, !Ref DomainName, !Sub "${Environment}.${DomainName}" ]
+      SubjectAlternativeNames:
+        - !If [ isProd, !Sub "*.${DomainName}", !Sub "*.${Environment}.${DomainName}" ]
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-${Environment}-certificate-${AWS::Region}
+      ValidationMethod: DNS
+
+Outputs:
+  ## Certificate
+  Certificate:
+    Value: !Ref Certificate
+    Export:
+      Name: !Sub ${AWS::StackName}-Certificate
+
+  CertificateDomainName:
+    Value: !If [ isProd, !Ref DomainName, !Sub "${Environment}.${DomainName}" ]
+    Export:
+      Name: !Sub ${AWS::StackName}-CertificateDomainName
+
+  CertificateSubjectAlternativeName1:
+    Value: !If [ isProd, !Sub "*.${DomainName}", !Sub "*.${Environment}.${DomainName}" ]
+    Export:
+      Name: !Sub ${AWS::StackName}-CertificateSubjectAlternativeName1
