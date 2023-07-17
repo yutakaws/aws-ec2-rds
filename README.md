@@ -111,12 +111,12 @@ AWSのインフラ環境/リソースをコードで管理することができ�
   
 </details>
 
-構築手順
-IAMにて管理ユーザー作る
-Route53でドメイン設定　ACM設定
-VPC構築
-EC2: SecurityGroup
-RDS、Secrets Manager作成
-EC2作成＆Docker入れる
-ELB設置
-AMI、Launch Template、EC2 Auto Scaling
+構築手順  
+IAMにて管理ユーザー作る  
+Route53でドメイン設定　ACM設定  
+VPC構築  
+EC2: SecurityGroup  
+RDS、Secrets Manager作成  
+EC2作成＆Docker入れる  
+ELB設置  
+AMI、Launch Template、EC2 Auto Scaling  
