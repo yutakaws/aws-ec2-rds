@@ -114,7 +114,7 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 
 ##  構築手順  
 1.IAM 管理ユーザーを作成  
-2.Route53ドメイン設定　ACM設定  
+2.Route53 DNS設定　ACM設定  
 3.VPC構築  
 4.SecurityGroup  
 5.RDS、Secrets Manager作成  
@@ -139,3 +139,30 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 - Security credentialsにてMFAを有効化する  
 
 ![MFA](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/649d2df6-53c5-4f9a-93d0-378e2a71d206)
+## Route53にてDNS設定 ACM設定  
+### Route 53にて[Hosted zone](https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/hosted-zones-working-with.html)を作成  
+
+- 購入したドメインを入力し、Public hosted zoneを設定
+  
+![hosted zone](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/4981a816-42db-4a63-9eee-80017bd8af1e)
+![hosted zone2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/8896f870-4684-4579-bc48-b82429588c4f)
+
+- タグを設定  
+  
+![hosted zone3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/289d744a-8cca-454c-bcaa-4f059d3450fd)
+
+### CAAレコードを作成し、ドメイン登録サービスで、Route 53ホストゾーンのネームサーバを変更する  
+- Hosted zone画面にてCreate Recordを選択し、CAAを設定し、レコードとしてValueへ'0 issue "amazon.com"'を入力する
+  
+![CAA1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/3791c3ad-dd5b-4a65-a4cd-469639c0137d)
+  
+- TTL (Time To Live)を１時間(3600秒)に設定する
+  
+![CAA2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/733ba058-ee9c-4ba0-8a24-4aea6af60dba)
+
+- ドメイン登録サービスの管理画面にてネームサーバーをHosted zoneにて設定されたネームサーバーへ変更する  
+
+![name server2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/a8e63fd8-0d3f-4d1f-86f2-f53e4c33012e)
+![name server](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/41dabb6b-74d2-4664-9a99-bc3a0d841dd6)
+
+
