@@ -265,6 +265,46 @@ yutakaws-private-subnet(a,c,d)
 
 ![s3ep](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/ce43fc68-40bf-4e4c-b879-77a6fe294354)
 
-## RDSを構築する  
+## RDSを構築及び、Secrets ManagerにてSecretsを作成する  
 ### RDS Aurora MySQLを作成する  
-5.7.mysql_aurora.2.11.3を選択する
+- RDS Databasesにて[Create database]を選択し、Aurora MySQL 5.7.mysql_aurora.2.11.3を選択する
+  
+![RDS1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/3291fe69-451a-4220-a245-42111093e159)
+
+![RDS2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/1eda8976-75f1-4023-8567-441cb889f6a7)
+
+- 任意の名前を選択し、Masterユーザ、パスワードを設定する
+
+![RDS8](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/c87acb60-0f43-4e79-b43f-ee5bce9158bc)  
+
+-  DBインスタンスクラスをdb.t3.smallに設定する
+
+![RDS4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/364ff0b6-37aa-4510-83e0-7a2ff53dfa42)  
+
+- 今回はマルチAZ設定をOFFにする
+  
+![RDS5](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/87c83520-0e35-4b13-8128-b539594b8acd)
+
+- 作成したVPCへアタッチする
+
+![RDS6](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/9e42baf9-8c8a-49b8-8924-5a5ac94432e1)
+
+- ローカルのみアクセス許可をするためPublic accessをNOに設定する
+  
+![RDS7](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/6baba49e-baed-4564-8362-942967e03e3c)
+
+### AWS Secrets ManagerにてDBアクセス用のSecretを保管する
+
+-  AWS Secrets Manager画面にて[Store a new secret]を選択しSecret typeに[Credential for Amazon RDS]を選択し、任意のユーザーとパスワードを設定する
+  
+![secrets1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/415f6063-13e9-4cd4-8375-e8f20fd22622)  
+
+-  Databaseに作成したDB instanceを選択する
+
+![secrets2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/2664b6f0-2a0d-4abd-b672-838457b088a0)  
+
+- Secret名と説明を入力
+
+![secrets3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/d73ed1d1-a7a1-49d5-b4cb-26f30e229c47)
+
+
