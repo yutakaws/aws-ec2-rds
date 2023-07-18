@@ -115,12 +115,11 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 ##  構築手順  
 1.IAM 管理ユーザーを作成  
 2.Route53にてDNSの設定、ACMにて証明書の設定    
-3.VPCを構築する  
-4.SecurityGroup  
-5.RDS、Secrets Manager作成  
-6.EC2作成＆Dockerコンテナ展開  
-7.ELB展開  
-8.AMI、Launch Template、EC2 Auto Scaling  
+3.VPCを構築する   
+4.RDS、Secrets Manager作成  
+5.EC2作成＆Dockerコンテナ展開  
+6.ELB展開  
+7.AMI、Launch Template、EC2 Auto Scaling  
 ## IAM 管理ユーザーの作成
 ### User groupsにて管理者権限を付与したユーザーグループを作成  
 - グループ名を入力
@@ -258,5 +257,14 @@ yutakaws-private-subnet(a,c,d)
   
 ![route table1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/f4cfd07b-fed7-4269-9187-1ae8f4a2dfe9)  
 
-作成したRoute tableを開き、Routeタブ[Edit Routes]にて各サブネットのルートを設定する  
-  
+- 作成したRoute tableを開き、Routeタブ[Edit Routes]にて各サブネットのルートを設定する  
+
+![route table2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/de66c8de-6723-47fe-9a15-24ccf9869d10)
+
+- EndpointsにてS3 endpoint gatewayタイプを作成しサブネットへ割り当てる
+
+![s3ep](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/ce43fc68-40bf-4e4c-b879-77a6fe294354)
+
+## RDSを構築する  
+### RDS Aurora MySQLを作成する  
+5.7.mysql_aurora.2.11.3を選択する
