@@ -42,12 +42,11 @@ ManagedPolicyとInlinePolicyを両方使う。
 
 - Route53  
 DNS名前解決
-ドメイン名はお名前.comから仕様
+ドメイン名はお名前.comから使用
 
 - EIP  
 固定パブリックIP
-今回はNATゲートウェイで使用
-値段
+今回はNATゲートウェイへアタッチ  
 
 - NAT Gateway  
 インターネットに出ていく際に、送信元IPアドレスをEIPに変換してくれる装置。  
@@ -111,12 +110,13 @@ AWSのインフラ環境/リソースをコードで管理することができ�
   
 </details>
 
-構築手順  
-IAMにて管理ユーザー作る  
-Route53でドメイン設定　ACM設定  
-VPC構築  
-EC2: SecurityGroup  
-RDS、Secrets Manager作成  
-EC2作成＆Docker入れる  
-ELB設置  
-AMI、Launch Template、EC2 Auto Scaling  
+##  構築手順  
+1.IAM 管理ユーザーを作成  
+2.Route53ドメイン設定　ACM設定  
+3.VPC構築  
+4.SecurityGroup  
+5.RDS、Secrets Manager作成  
+6.EC2作成＆Dockerコンテナ展開  
+7.ELB展開  
+8.AMI、Launch Template、EC2 Auto Scaling  
+## IAM 管理ユーザーの作成
