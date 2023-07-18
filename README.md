@@ -190,5 +190,28 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 - Your VPCsにて、ネットワーク全体を表すCIDRを10.0.0.0/19と設定し、任意のNameを入力する  
 
   ![Vpc1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e490ea39-6d34-4a5b-b01b-ed520d16b384)
-
   
+### サブネットを作成する  
+- 3つのAZに3つの目的（Public、Protected、Private）ごとの合計9つのサブネットを作る  
+**Public**  インターネット公開用、中と外の両方向の通信が可能  
+**Protected**  EC2インスタンス用、NAT Gatewayによる中から外の通信が可能  
+**Private**  データベースなどのローカル用、ローカル内のみの通信が可能
+  
+| Name | AZ | CIDR |
+| --- | --- | --- |
+| yutakaws-public-subnet-a | ap-northeast-1a | 10.0.0.0/24 |
+| yutakaws-protected-subnet-a | ap-northeast-1a | 10.0.4.0/24 |
+| yutakaws-private-subnet-a | ap-northeast-1a | 10.0.8.0/24 |
+| yutakaws-public-subnet-c | ap-northeast-1c | 10.0.1.0/24 |
+| yutakaws-protected-subnet-c | ap-northeast-1c | 10.0.5.0/24 |
+| yutakaws-private-subnet-c | ap-northeast-1c | 10.0.9.0/24 |
+| yutakaws-public-subnet-d | ap-northeast-1d | 10.0.2.0/24 |
+| yutakaws-protected-subnet-d | ap-northeast-1d | 10.0.6.0/24 |
+| yutakaws-private-subnet-d | ap-northeast-1d | 10.0.10.0/24 |  
+  
+- 作成したVPC IDを選択し、上記のサブネットを参考にサブネット名、AZ、CIDR、Name Tagを設定する
+
+![subnet1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/6fde4dfc-7c91-4bf2-84c7-d4c84f610f2f)  
+   
+![subnet2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/3468fd87-9d6c-43a7-b96a-127d2cef65f8)  
+
