@@ -40,11 +40,11 @@ EC2からのデータをこちらで管理
 ManagedPolicyとInlinePolicyを両方使う。
 
 - Route53  
-Hosted Zone内のキャッシュDNSリゾルバー及び、権威DNSサーバーにてDNS名前解決を行う。
-ドメイン名はお名前.comから使用。
+Hosted Zone内のキャッシュDNSリゾルバー及び、権威DNSサーバーにてDNS名前解決を行う。  
+ドメイン名はお名前.comから使用。  
 
 - EIP  
-固定パブリックIP
+固定パブリックIP  
 今回はNATゲートウェイへアタッチ。  
 
 - NAT Gateway  
