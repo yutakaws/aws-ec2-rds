@@ -114,8 +114,8 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 
 ##  構築手順  
 1.IAM 管理ユーザーを作成  
-2.Route53 DNS設定　ACM設定  
-3.VPC構築  
+2.Route53にてDNSの設定、ACMにて証明書の設定    
+3.VPCを構築する  
 4.SecurityGroup  
 5.RDS、Secrets Manager作成  
 6.EC2作成＆Dockerコンテナ展開  
@@ -139,7 +139,7 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 - Security credentialsにてMFAを有効化する  
 
 ![MFA](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/649d2df6-53c5-4f9a-93d0-378e2a71d206)
-## Route53にてDNS設定 ACM設定  
+## Route53にてDNSの設定、ACMにて証明書の設定  
 ### Route 53にて[Hosted zone](https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/hosted-zones-working-with.html)を作成  
 
 - 購入したドメインを入力し、Public hosted zoneを設定
@@ -165,4 +165,23 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 ![name server2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/a8e63fd8-0d3f-4d1f-86f2-f53e4c33012e)
 ![name server](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/41dabb6b-74d2-4664-9a99-bc3a0d841dd6)
 
+### AWS Certificate Manager (ACM)にて証明書をリクエストする  
+- Request Certificate画面にてAmazonからのSSL/TLS証明書をリクエストする
 
+![ACM1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/7ecb659f-fe65-437e-9e83-eeb1dd90546c)
+
+- ドメイン名を入力し、Add another name to this certificateを選択し、SANも登録する
+
+![ACM2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/ce028b7f-3a53-42e8-a5c1-043252590694)
+
+### ドメイン認証のためにRoute 53にCNAMEレコードを追加する
+
+- List certificatesにて該当の証明書を選択し、Create records in Route53を選択する
+
+![ACM3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/faec4c2e-3697-4b2b-ae3e-f4010ff90ae0)
+
+- Route 53にてCNAMEレコードが追加されていることを確認
+
+![ACM4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e5e9d295-9860-406d-9410-abf0a3faabbd)
+
+## VPCを構築する  
