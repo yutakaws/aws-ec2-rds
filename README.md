@@ -122,3 +122,20 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 7.ELB展開  
 8.AMI、Launch Template、EC2 Auto Scaling  
 ## IAM 管理ユーザーの作成
+### User groupsにて管理者権限を付与したユーザーグループを作成  
+- グループ名を入力
+  
+![iam-usergroup-name](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/7240d850-36c5-4f44-b0d9-7702a0a5ca4b)
+
+- Managed policyの[AdministratorAccess](https://docs.aws.amazon.com/ja_jp/IAM/latest/UserGuide/access_policies_job-functions.html#jf_administrator)を選択し作成
+  
+![iam-usergroup-permission](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/5e52c8e5-1463-4dff-9405-794a8a608322)
+
+### UsersにてUserを作成しUser groupへ追加を行い、MFA認証を有効にする
+- Add Usersを選択後、任意の名前を入力し先程作成したUser groupへ追加する  
+  
+![user add group](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/f16f2ffa-e810-44b7-8bfa-9386db25bd37)
+
+- Security credentialsにてMFAを有効化する  
+
+![MFA](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/649d2df6-53c5-4f9a-93d0-378e2a71d206)
