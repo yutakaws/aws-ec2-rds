@@ -117,8 +117,8 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 2.Route53にてDNSの設定、ACMにて証明書の設定    
 3.VPCを構築する   
 4.RDS、Secrets Manager作成  
-5.EC2作成＆Dockerコンテナ展開  
-6.ELB展開  
+5.Security Groups設定、ELB(ALB)展開  
+6.EC2作成＆Dockerコンテナ展開  
 7.AMI、Launch Template、EC2 Auto Scaling  
 ## IAM 管理ユーザーの作成
 ### User groupsにて管理者権限を付与したユーザーグループを作成  
@@ -306,5 +306,104 @@ yutakaws-private-subnet(a,c,d)
 - Secret名と説明を入力
 
 ![secrets3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/d73ed1d1-a7a1-49d5-b4cb-26f30e229c47)
+  
+## Security Groups設定、ELB(ALB)を展開する  
+### Security Groupsを設定する  
 
+- 下記を参照しインスタンスへアクセスできるInboundの通信を許可するルールを追加する。Outboundは全てデフォルトのまま  
+
+- インターネット→ALB
+
+| プロトコル(Port) | アクセス元(Source) |
+| --- | --- |
+|HTTP(TCP80)|0.0.0.0/0|
+|HTTPS(TCP443)|0.0.0.0/0|
+  
+- ALBのSGからEC2
+
+| プロトコル(Port) | アクセス元(Source) |
+| --- | --- |
+|HTTP(TCP80)|ALBのSG|
+  
+- EC2のSGからRDS
+
+| プロトコル(Port) | アクセス元(Source) |
+| --- | --- |
+|MYSQL/Aurora(TCP3306)|EC2のSG|
+  
+- Security Groups画面にて[Create security group]を選択し、上記を参照し値を入力する  
+※Security group nameはどのリソースへ取り付けたか、わかりやすくするため正確に付ける
+  
+![sgalb](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/aa6f47f7-cf0a-4cb5-b1a9-b6d6f53f6fc5)  
+  
+![sgalb2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/19647469-3875-4b8a-bccc-1dd5b5a1f4f4)
+
+### ELB(ALB)を展開する  
+- Load Balancers画面にて[Create load balancer]を選択し、任意の名前を入力、Internet-facing、IPv4を選択する
+
+![ALB1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/1e33a9d7-8155-42ca-9adf-852867524b12)
+
+- 作成したVPCを選択肢、さらに3つのAZのPublic subnetを選択する
+
+![ALB2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/411e5a06-e9a2-4967-ab62-61f935ccf0df)  
+
+- 作成したSecurity Groupを選択する
+
+![ALB3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/6550895e-f3ee-4d2e-963f-9c97d865b94f)
+
+### HTTPSへリダイレクトを行うためにListenersにてListener rulesを設定し、Target groupも併せて作成
+
+- HTTP Port:80にRedirectを選択し、443ポートを指定する
+![ALBlistener](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/606a3c1a-e93e-4404-b76e-ac50014ee8ac)
+
+![ALBlistener3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/1644a72c-0411-42a6-8d28-b0813a056f66)
+  
+- Target Groups画面にて[Create target group]を選択し、対象としてInstanceを選択する
+
+![tg](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/bfac0910-3e56-4d7f-9f9c-62719a856a8f)
+
+- 任意の名前を入力し、VPCを選択する
+  
+![tg2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/8d041dde-1111-4d88-a7b4-d50a244cadb2)
+  
+### HTTPSへ特定のリクエストのみ転送するListnener ruleを設定する　　
+
+- 403を表示させるため、Response code,Content type,Response bodyの設定を行う
+![ALBlistenerhttps](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/a0a276bc-9f24-4177-b807-9a4819bcd5d5)
+
+- セキュリティポリシー及びSSL証明書をACMに設定する
+
+![ALBlistenerhttps3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/3eb26db9-8dc2-4521-9bdf-1cee66bf9722)
+
+- HTTPS:443 Listenerを選択し、Rulesタブ[Manage rules]にて更に細かく設定する
+
+![ALBlistenerhttps4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/1483c208-3c90-455b-beec-1d66b949bd4b)
+
+
+## EC2インスタンスを作成 
+
+### IAM roleにてEC2インスタンスへ取り付ける「Session Managerを許可する」「Secretsの値を参照を許可する」Roleを作成する  
+
+- IAM Roles画面にてcreate roleを選択しAWS service,EC2を選択する  
+
+![iam](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/533ff952-ce3c-4df1-b184-3ce55e803482)  
+
+- [Create policy]を選択し、Secrets Managerを検索し、Access levelのRead,GetSecretValueにチェック
+  
+![policy2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/4b600b1e-9d19-48ed-899b-353ea8cf1477)
+
+- 任意のPolicyネームを付ける
+  
+![policy3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b89a3ba5-0870-4baf-9779-2e1a7a0d4209)
+
+- Session Managerを許可する[AmazonSSMManagedInstanceCore]と、先程作成したPoliciyを選択する  
+  
+![amrrole;](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b0f51782-3f3c-4a72-8e6a-c4a6b1a6d9fb)  
+![amrrole2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/4e94fa60-aea5-4353-9b6f-40bd9b23e1d0)  
+  
+- 任意のRoleネームを付ける
+
+![amrrole3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/a1cbc316-b772-4149-9027-8e78831e5919)
+
+### EC2インスタンスを作成する  
 
