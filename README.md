@@ -718,3 +718,35 @@ for rb in $( ls app/config/environments/*.rb ); do
    "172.16.0.0\/12"\nend/' ${rb}
 done
 ```
+### appのDockerビルド及び、appコンテナでDBのセットアップ  
+```
+docker-compose build app
+docker-compose run --no-deps app /bin/bash
+```
+- RDSでユーザー作成を行う
+```
+mysql --ssl -h ${MYSQL_HOST} -u root -p -e \
+"CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}'; \
+GRANT ALL ON \`%\`.* TO '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}'; \
+SHOW GRANTS FOR '${MYSQL_USER}'@'%';"
+```
+- 下記が表示されたら成功  
+  
+![docker2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/71011d3d-f652-4041-b7a6-257da4e825d1)
+
+- RDSでDB作成
+```
+rails db:create
+```
+- Rubyの動作確認用にscaffoldを実行し、Rubyのファイルを編集する
+```
+rails generate scaffold user name:string email:string
+```
+- RDSでDB更新をする
+```
+rails db:migrate
+```
+- appコンテナ終了
+```
+exit
+```
