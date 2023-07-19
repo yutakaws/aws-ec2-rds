@@ -750,3 +750,31 @@ rails db:migrate
 ```
 exit
 ```
+### appとwebのDockerビルド  
+- パーミッション修正
+```
+sudo chown -R $(id -u):$(id -g) app/
+```
+- Dockerの再ビルドを行う
+```
+docker-compose build
+```
+- 既存のNginxコンテナを確認して停止する
+```
+docker container ls
+docker container stop nginx
+docker container update --restart=no nginx
+```
+- docker-composeでNginxとRubyのコンテナを起動して確認する
+```
+docker-compose up -d
+docker container update --restart=always app web
+docker container ls
+```
+![docker3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/9a3090a7-10b3-4377-ad03-79d6594aaaee)　　
+  
+- ブラウザでhttps://*elb*.[任意のドメイン名]/へアクセスしテストする
+  
+![complete](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/0616df10-da1a-4db4-9a3b-8ac8d0151c65)
+![docker  compl](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b48d340d-ba3d-4e99-9f49-703b48d5230f)
+
