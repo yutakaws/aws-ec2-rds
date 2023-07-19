@@ -1,4 +1,4 @@
-# EC2(Docker[Rails+Nginx])+RDSの環境構築
+![AS5](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e140160f-6cee-450a-8c87-9cf601a85dd1)# EC2(Docker[Rails+Nginx])+RDSの環境構築
 
 下記の構成で構築を行う
 
@@ -778,3 +778,66 @@ docker container ls
 ![complete](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/0616df10-da1a-4db4-9a3b-8ac8d0151c65)
 ![docker  compl](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b48d340d-ba3d-4e99-9f49-703b48d5230f)
 
+## AMI,Launch Templateを作成しEC2 Auto Scalingを展開する  
+### EC2インスタンスのAMIを作成する  
+
+- Instances画面にて作成したEC2インスタンスを選択し、[Actions][Image and templates][Create image]を選択する
+
+![AMI1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/68c289aa-66d5-4d7d-a2ff-b3b411bf2c85)  
+
+- 任意のAMI名を入力する
+  
+![AMI2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/0278708c-8897-491c-b343-001904fa1287)
+
+### Launch Templateを作成する
+
+- 任意の名前を入力する
+
+![Launch1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/de49e18f-80f3-403b-8040-96dfb1fa5a7f)
+
+- 作成したAMIを設定する
+
+![Launch2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/bcbcc616-bf2b-4928-81e7-9c8ea283aa01)  
+
+- 作成したEC2インスタンスと同じSecurity Groupを設定する
+
+![Launch3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b4de690b-7f66-47d7-8cd4-639e48530e92)
+
+- Shutdown behaviorをTerminateにする
+  
+![Launch4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/6023c0a2-7cf3-4fba-a1bd-3ccfa2e4b52f)
+
+### EC2 Auto Scalingを作成する  
+
+- Auto Scaling groups画面にて[Create Auto scaling group]を選択するし、任意のNameを入力する
+
+![AS1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/46e96464-8df9-4836-b809-cc5cfd77d8d1)  
+
+- 作成したLaunch templateを選択する
+
+![AS2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/7882188c-4f90-49ef-8dc5-ba6bd9081169)
+
+- 3つのAZでEC2と同様のProtected Subnetを選択する
+  
+![AS3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/7b560ac2-d68a-420a-b45d-f1853fba86e8)  
+
+- Manually add instance typesを選択し[t2.micro]と[t3.micro]を選択する  
+  
+![AS4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e2e5da9a-3537-4268-a276-29e57aa34970)
+
+- Instance distributionをSpotのみ100%の割合にする
+
+![AS5](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/a2db2e22-522c-452a-a6b2-c890bf6ed1d2)  
+
+- Auto Scaling groupのELB()ALBを設定する
+  
+![AS6](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/0bfaaef4-464d-4afe-b3a1-caafd3c62fb0)  
+
+- ELBからのヘルスチェックを有効にする  
+  
+![AS7](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/62c566d1-bf66-4a79-999f-cafed84c868a)
+
+- (Desired)希望の台数、(Minimum)最小台数、(Maximum)最大台数を設定する
+
+![AS8](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b2e4cf48-bd49-4d75-8bc0-d0e8f50920e1)  
+  
