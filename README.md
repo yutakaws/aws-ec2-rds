@@ -184,11 +184,11 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 ![ACM4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e5e9d295-9860-406d-9410-abf0a3faabbd)
 
 ## VPCを構築する  
-### VPCを作成する
-
-- Your VPCsにて、ネットワーク全体を表すCIDRを10.0.0.0/19と設定し、任意のNameを入力する  
-
-  ![Vpc1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e490ea39-6d34-4a5b-b01b-ed520d16b384)
+### VPCを作成する  
+  
+- Your VPCsにて、ネットワーク全体を表すCIDRを10.0.0.0/19と設定し、任意のNameを入力する    
+  
+![Vpc1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e490ea39-6d34-4a5b-b01b-ed520d16b384)
   
 ### サブネットを作成する  
 - 3つのAZに3つの目的（Public、Protected、Private）ごとの合計9つのサブネットを作る  
@@ -332,9 +332,9 @@ yutakaws-private-subnet(a,c,d)
 |MYSQL/Aurora(TCP3306)|EC2のSG|
   
 - Security Groups画面にて[Create security group]を選択し、上記を参照し値を入力する  
-※Security group nameはどのリソースへ取り付けたか、わかりやすくするため正確に付ける
+※Security group nameはどのリソースへ取り付けたか、わかりやすくするため正確に付ける  
   
-![sgalb](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/aa6f47f7-cf0a-4cb5-b1a9-b6d6f53f6fc5)  
+![sgalb](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/8fc65b39-ddff-4e14-b9a6-47c69e237762)  
   
 ![sgalb2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/19647469-3875-4b8a-bccc-1dd5b5a1f4f4)
 
@@ -354,9 +354,10 @@ yutakaws-private-subnet(a,c,d)
 ### HTTPSへリダイレクトを行うためにListenersにてListener rulesを設定し、Target groupも併せて作成
 
 - HTTP Port:80にRedirectを選択し、443ポートを指定する
-![ALBlistener](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/606a3c1a-e93e-4404-b76e-ac50014ee8ac)
-
-![ALBlistener3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/1644a72c-0411-42a6-8d28-b0813a056f66)
+  
+![ALBlistener](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/606a3c1a-e93e-4404-b76e-ac50014ee8ac)  
+  
+![ALBlistener3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/1644a72c-0411-42a6-8d28-b0813a056f66)  
   
 - Target Groups画面にて[Create target group]を選択し、対象としてInstanceを選択する
 
@@ -369,6 +370,7 @@ yutakaws-private-subnet(a,c,d)
 ### HTTPSへ特定のリクエストのみ転送するListnener ruleを設定する　　
 
 - 403を表示させるため、Response code,Content type,Response bodyの設定を行う
+  
 ![ALBlistenerhttps](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/a0a276bc-9f24-4177-b807-9a4819bcd5d5)
 
 - セキュリティポリシー及びSSL証明書をACMに設定する
@@ -407,3 +409,55 @@ yutakaws-private-subnet(a,c,d)
 
 ### EC2インスタンスを作成する  
 
+- Instances画面にて[Launch instances]を選択し、任意の名前を入力しAMIを選択する（今回はAmazon Linux2のAMIを使用)
+
+![ec1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/8738a255-ce5b-47f2-8d7c-0a2be6dc17fe)
+![ec2](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/d3e31276-d18f-420c-b2ad-3255603b04a6)
+
+- Instance typeを選択(今回はt2.micro)
+
+![ec3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/33c235ba-c43c-4546-b9f5-596b40ff1738)
+
+- Session Managerにて接続をするため、Key pairなしを選択
+  
+![ec4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/89f639d9-ad72-41b5-926f-e6e10d0e8968)  
+  
+- 作成したVPC,Protected Subnet,Security groupを選択  
+  
+![ec5](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/d1f1e5ee-3b4a-473c-a966-c98f1801be08)
+
+- EBSをgp3へ変更する  
+  
+![ec6 5](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/592b2987-c115-49c0-8381-f35740e0ab19)
+  
+- Advanced detailsを開き、IAM instance profileにて作成したIAM roleを選択する
+
+![ec6](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b4d9efd0-9b40-46ff-a1a9-22adde594246)
+
+
+- インスタンス起動時にDockerおよびDocker Composeをインストールするため下記をUser dataを入力する  
+```
+#!/bin/bash
+yum -y update
+aws configure set default.region ${AWS::Region}
+## Install Docker Engine
+amazon-linux-extras install docker -y
+systemctl enable docker.service
+systemctl start docker.service
+## Install Docker Compose
+CLI_DIR=/usr/local/lib/docker/cli-plugins
+LATEST_RELEASE=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url | grep -i $(uname -s)-$(uname -m) | grep -v sha256 | cut -d : -f 2,3 | tr -d \")
+mkdir -p ${!CLI_DIR}
+curl -sL ${!LATEST_RELEASE} -o ${!CLI_DIR}/docker-compose
+chmod +x ${!CLI_DIR}/docker-compose
+ln -s ${!CLI_DIR}/docker-compose /usr/bin/docker-compose
+## Run Docker Container
+docker container run --name nginx --restart=always -d -p 80:80 nginx
+```
+
+- EC2インスタンスを作成したら、ELBのTarget Groupにて[Register targets]を選択し、EC2インスタンスを追加する
+  
+  ![ec8](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/ef75ecde-66f2-418f-b4df-68a6b8f099b3)
+  
+## DockerコンテナにNginxとRubyのコンテナを作成 
+  
