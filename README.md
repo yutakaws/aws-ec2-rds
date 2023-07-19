@@ -488,3 +488,233 @@ mkdir -p containers/app
 mkdir -p containers/web
 ```
 - docker-compose.ymlを作成する
+```
+### Secrets　Manager で SecretForRDSを開き認証情報を書き換え
+cat <<EOF > docker-compose.yml
+version: "3"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./containers/app/Dockerfile
+    environment:
+      ### [Change: SecretForRD*** > host]
+      MYSQL_HOST: ***-prod-rds.cluster-************.ap-northeast-1.rds.amazonaws.com
+      ### [Change: SecretForRDS*** > database]
+      MYSQL_DATABASE: ***
+      ### [Change: SecretForRDS*** > username]
+      MYSQL_USER: ***
+      ### [Change: SecretForRDS*** > password]
+      MYSQL_PASSWORD: ********************************
+      ### No change
+      RAILS_ENV: development
+      ### [Change: Route 53 > HostedZone]
+      RAILS_CONFIG_HOSTS: .awsytk.com
+    volumes:
+      - ./app/:/***/
+    ports:
+      - "3000:3000"
+    container_name: app
+    restart: always
+  web:
+    build:
+      context: .
+      dockerfile: ./containers/web/Dockerfile
+    command: /bin/bash -c "envsubst '\$\$NGINX_BACKEND' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    environment:
+      NGINX_BACKEND: app
+    volumes:
+      - ./containers/web/nginx.conf:/etc/nginx/nginx.conf
+      - ./containers/web/default.conf.template:/etc/nginx/conf.d/default.conf.template
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    container_name: web
+    restart: always
+EOF
+```
+- Gemfileを作成する
+```
+cat <<EOF > app/Gemfile
+source 'https://rubygems.org'
+gem 'rails', '~> 7.0'
+EOF
+```
+- Gemfile.lockを作成する
+```
+touch app/Gemfile.lock
+```
+- app(ruby)のDockerfileを作成する
+```
+cat <<EOF > containers/app/Dockerfile
+FROM public.ecr.aws/docker/library/ruby:3.2
+RUN apt-get update -qq && \\
+    apt-get install -y --no-install-recommends --no-install-suggests default-mysql-client && \\
+    apt-get clean && \\
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /***
+COPY app/Gemfile /***/Gemfile
+COPY app/Gemfile.lock /***/Gemfile.lock
+RUN gem update bundler && \\
+    bundle install
+
+COPY app/ /***/
+COPY containers/app/entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+EXPOSE 3000
+CMD ["rails", "server", "-b", "0.0.0.0"]
+EOF
+```
+- entrypoint.shを作成する
+```
+cat <<EOF > containers/app/entrypoint.sh
+#!/bin/bash
+set -e
+
+# Remove a potentially pre-existing server.pid for Rails.
+rm -f /awsmaster/tmp/pids/server.pid
+
+# Then exec the container's main process (what's set as CMD in the Dockerfile).
+exec "\$@"
+EOF
+```
+- web(nginx)のDockerfileを作成する  
+```
+cat <<EOF > containers/web/Dockerfile
+FROM public.ecr.aws/nginx/nginx:1.25
+COPY containers/web/nginx.conf /etc/nginx/nginx.conf
+COPY containers/web/default.conf.template /etc/nginx/conf.d/default.conf.template
+EOF
+```
+- nginx.confを作成する
+```
+cat <<EOF > containers/web/nginx.conf
+user nginx;
+worker_processes 1;
+
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  server_tokens off;
+
+  map \$http_cloudfront_forwarded_proto \$real_ip_temp {
+    ~http?   \$http_x_forwarded_for;
+    default '\$http_x_forwarded_for, dummy';
+  }
+
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  log_format main '\$real_ip - \$remote_user [\$time_local] "\$request" '
+                  '\$status \$body_bytes_sent "\$http_referer" '
+                  '"\$http_user_agent" "\$forwarded_for"';
+
+  access_log /var/log/nginx/access.log main;
+
+  sendfile on;
+  keepalive_timeout 65;
+
+  proxy_buffer_size 32k;
+  proxy_buffers 50 32k;
+  proxy_busy_buffers_size 32k;
+
+  include /etc/nginx/conf.d/*.conf;
+}
+EOF
+```
+- default.conf.templateを作成する
+```
+cat <<EOF > containers/web/default.conf.template
+upstream backend {
+  server \${NGINX_BACKEND}:3000;
+}
+server {
+  listen 80;
+  server_name localhost;
+
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+  # add_header X-Content-Type-Options nosniff always;
+  # add_header X-Frame-Options SAMEORIGIN always;
+  # add_header X-XSS-Protection "1; mode=block" always;
+
+  ## Module ngx_http_realip_module
+  ## http://nginx.org/en/docs/http/ngx_http_realip_module.html
+  set_real_ip_from 10.0.0.0/8;
+  real_ip_header X-Forwarded-For;
+  set \$real_ip \$realip_remote_addr;
+  set \$forwarded_for -;
+  if (\$real_ip_temp ~ "([^, ]+) *, *[^, ]+ *\$") {
+    set \$real_ip \$1;
+    set \$forwarded_for '\$http_x_forwarded_for, \$realip_remote_addr';
+  }
+
+  client_max_body_size 30M;
+
+  location ~* ^/ {
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    # add_header X-Content-Type-Options nosniff always;
+    # add_header X-Frame-Options SAMEORIGIN always;
+    # add_header X-XSS-Protection "1; mode=block" always;
+
+    ## nginx - no resolver defined to resolve s3-eu-west-1.amazonaws.com - Stack Overflow
+    ## https://stackoverflow.com/questions/49677656/
+    # resolver 169.254.169.253 valid=30s;
+
+    proxy_cookie_path ~^/(.*)\$ "/\$1; Secure";
+    proxy_set_header Host \$host;
+    proxy_pass http://backend;
+  }
+}
+EOF
+```
+- rails new初期設定を行う
+```
+docker-compose run --no-deps app rails new . --force --database=mysql
+```
+- パーミッションの修正を行う
+```
+sudo chown -R $(id -u):$(id -g) app/
+```
+- ファイルのバックアップを行う
+```
+mv app/config/database.yml app/config/database.yml.original
+```
+- database.ymlを作成する
+```
+cat <<EOF > app/config/database.yml
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: 5
+  ssl_mode: required
+  host: <%= ENV['MYSQL_HOST'] %>
+  database: <%= ENV['MYSQL_DATABASE'] %>
+  username: <%= ENV['MYSQL_USER'] %>
+  password: <%= ENV['MYSQL_PASSWORD'] %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
+EOF
+```
+- ファイルの修正を行う
+```
+for rb in $( ls app/config/environments/*.rb ); do
+  perl -pi -e 's/^end$/\n  # Allow requests from domain ENV.fetch("RAILS_CONFIG_HOSTS").\n  config.hosts <<
+   ENV.fetch("RAILS_CONFIG_HOSTS")\n\n  # Allow requests from docker container.\n  config.web_console.whitelisted_ips = 
+   "172.16.0.0\/12"\nend/' ${rb}
+done
+```
