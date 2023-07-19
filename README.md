@@ -1,4 +1,4 @@
-![AS5](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e140160f-6cee-450a-8c87-9cf601a85dd1)# EC2(Docker[Rails+Nginx])+RDSの環境構築
+# EC2(Docker[Rails+Nginx])+RDSの環境構築
 
 下記の構成で構築を行う
 
