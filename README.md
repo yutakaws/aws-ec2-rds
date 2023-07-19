@@ -459,5 +459,32 @@ docker container run --name nginx --restart=always -d -p 80:80 nginx
   
   ![ec8](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/ef75ecde-66f2-418f-b4df-68a6b8f099b3)
   
-## DockerコンテナにNginxとRubyのコンテナを作成 
+## DockerコンテナにNginxとRubyのコンテナを作成する  
+### Dockerビルド前の準備を行う  
+
+- EC2Instance画面にて作成したEC2インスタンスにチェックを入れ[Connect]を選択し、Session Managerで接続する
   
+![docker1](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/d5e6eb6d-1f35-4d15-b160-30f4ff27d111)  
+
+- 作業ディレクトリに移動する
+```
+###　任意の名前=***
+bash
+mkdir -p ~/*** && cd ~/***
+```
+- dockerコマンドをssm-userで使えるようにする
+```
+sudo usermod -a -G docker ssm-user
+```
+- グループの変更がすぐに反映されないので下記を実行する
+```
+exec sudo -i -u $(whoami)
+cd ~/***
+```
+- ディレクトリの作成
+```
+mkdir -p app
+mkdir -p containers/app
+mkdir -p containers/web
+```
+- docker-compose.ymlを作成する
