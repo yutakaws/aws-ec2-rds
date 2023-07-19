@@ -829,7 +829,7 @@ docker container ls
 
 ![AS5](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/a2db2e22-522c-452a-a6b2-c890bf6ed1d2)  
 
-- Auto Scaling groupのELB()ALBを設定する
+- Auto Scaling groupのELB(ALB)を設定する
   
 ![AS6](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/0bfaaef4-464d-4afe-b3a1-caafd3c62fb0)  
 
@@ -841,3 +841,7 @@ docker container ls
 
 ![AS8](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b2e4cf48-bd49-4d75-8bc0-d0e8f50920e1)  
   
+- 作成が完了したら、Automatic scalingタブScheduled actionsにて[Create scheduled action]を選択し、任意のスケジュールを入力する  
+cronの入力方式は[ここ](https://docs.aws.amazon.com/ja_jp/autoscaling/ec2/userguide/ec2-auto-scaling-scheduled-scaling.html#sch-actions_recurring_schedules)を確認
+  
+![AS9](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/bf994ef6-f0f5-4684-bf1f-88e8e3ac174d)
