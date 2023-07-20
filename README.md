@@ -844,4 +844,6 @@ docker container ls
 - 作成が完了したら、Automatic scalingタブScheduled actionsにて[Create scheduled action]を選択し、任意のスケジュールを入力する  
 cronの入力方式は[ここ](https://docs.aws.amazon.com/ja_jp/autoscaling/ec2/userguide/ec2-auto-scaling-scheduled-scaling.html#sch-actions_recurring_schedules)を確認
   
-![AS9](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/bf994ef6-f0f5-4684-bf1f-88e8e3ac174d)
+![AS9](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/bf994ef6-f0f5-4684-bf1f-88e8e3ac174d)  
+
+これにて構築は完了です。
