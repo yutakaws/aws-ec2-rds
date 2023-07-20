@@ -106,9 +106,6 @@ CPUやメモリの負荷などをトリガーや曜日と時間をトリガー�
 - Amazon Simple Storage Service（Amazon S3)  
 容量無制限のオブジェクトストレージサービス  
 RDSのログ保存先として利用。  
-
-- CloudFormation  
-AWSのインフラ環境/リソースをコードで管理することができ、それを用いて一括でリソースを起動/削除が可能となる。
   
 </details>
 
