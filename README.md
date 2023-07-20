@@ -21,7 +21,7 @@ EC2インスタンス用、NAT Gatewayによる中から外の通信が可能
 NAT gateway及びALBによる通信
 
 - **AZをまたがるELB(ALB)、EC2 Auto Scaling**  
-ALBをロードバランサーとしてPublic Subnetに展開
+ALBをロードバランサーとしてPublic Subnetに展開  
 EC2 Auto Scaling　作成したEC2インスタンスのAMIを利用したLaunch Templateを使用し、EC2インスタンスのスケーリングを行う
 
 - **データベースとしてRDSを展開**  
