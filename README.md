@@ -1,4 +1,4 @@
-# EC2(Docker[Rails+Nginx])+RDSの環境構築
+# EC2(Docker[Ruby+Nginx])+RDSの環境構築
 
   ![awsec2rds](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/688e1ecd-a977-47bb-ad76-8767781e4701)
   
@@ -18,7 +18,7 @@ EC2インスタンス用、NAT Gatewayによる中から外の通信が可能
 
 - **Route53によるDNS名前解決**  
 
-- **EC2インスタンスへrails、ngixベースのDockerコンテナを展開**  
+- **EC2インスタンスへRuby、NginxベースのDockerコンテナを展開**  
 インスタンスは、Protected Subnetへ設置
 NAT gateway及びALBによる通信
 
@@ -88,7 +88,7 @@ Aurora Standard db.t3.small	1時間あたり0.063USD
 
 - SecretsManager: Secret  
 DBの認証情報「シークレット」の安全な保管が可能。  
-DBのマスターユーザー(管理者)と、後で作るRailsアプリ用のDB名・ユーザー名、2つの認証情報を保管する。
+DBのマスターユーザー(管理者)と、後で作るRubyアプリ用のDB名・ユーザー名、2つの認証情報を保管する。
 
 - ELB(ALB)  
 負荷分散を行う  
