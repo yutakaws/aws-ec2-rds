@@ -116,11 +116,13 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 1.IAM 管理ユーザーを作成  
 2.Route53にてDNSの設定、ACMにて証明書の設定    
 3.VPCを構築する   
-4.RDS、Secrets Manager作成  
-5.Security Groups設定、ELB(ALB)展開  
-6.EC2作成＆Dockerコンテナ展開  
-7.AMI、Launch Template、EC2 Auto Scaling  
-## IAM 管理ユーザーの作成
+4.RDSを構築及び、Secrets ManagerにてSecretsを作成する  
+5.Security Groups設定、ELB(ALB)を展開する  
+6.EC2を作成する  
+7.DockerコンテナにNginxとRubyのコンテナを作成する  
+8.AMI,Launch Templateを作成しEC2 Auto Scalingを展開する  
+  
+## 1.IAM 管理ユーザーの作成
 ### User groupsにて管理者権限を付与したユーザーグループを作成  
 - グループ名を入力
   
@@ -138,7 +140,7 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 - Security credentialsにてMFAを有効化する  
 
 ![MFA](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/649d2df6-53c5-4f9a-93d0-378e2a71d206)
-## Route53にてDNSの設定、ACMにて証明書の設定  
+## 2.Route53にてDNSの設定、ACMにて証明書の設定  
 ### Route 53にて[Hosted zone](https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/hosted-zones-working-with.html)を作成  
 
 - 購入したドメインを入力し、Public hosted zoneを設定
@@ -183,7 +185,7 @@ AWSのインフラ環境/リソースをコードで管理することができ�
 
 ![ACM4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/e5e9d295-9860-406d-9410-abf0a3faabbd)
 
-## VPCを構築する  
+## 3.VPCを構築する  
 ### VPCを作成する  
   
 - Your VPCsにて、ネットワーク全体を表すCIDRを10.0.0.0/19と設定し、任意のNameを入力する    
@@ -265,7 +267,7 @@ yutakaws-private-subnet(a,c,d)
 
 ![s3ep](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/ce43fc68-40bf-4e4c-b879-77a6fe294354)
 
-## RDSを構築及び、Secrets ManagerにてSecretsを作成する  
+## 4.RDSを構築及び、Secrets ManagerにてSecretsを作成する  
 ### RDS Aurora MySQLを作成する  
 - RDS Databasesにて[Create database]を選択し、Aurora MySQL 5.7.mysql_aurora.2.11.3を選択する
   
@@ -307,7 +309,7 @@ yutakaws-private-subnet(a,c,d)
 
 ![secrets3](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/d73ed1d1-a7a1-49d5-b4cb-26f30e229c47)
   
-## Security Groups設定、ELB(ALB)を展開する  
+## 5.Security Groups設定、ELB(ALB)を展開する  
 ### Security Groupsを設定する  
 
 - 下記を参照しインスタンスへアクセスできるInboundの通信を許可するルールを追加する。Outboundは全てデフォルトのまま  
@@ -382,7 +384,7 @@ yutakaws-private-subnet(a,c,d)
 ![ALBlistenerhttps4](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/1483c208-3c90-455b-beec-1d66b949bd4b)
 
 
-## EC2インスタンスを作成 
+## 6.EC2インスタンスを作成 
 
 ### IAM roleにてEC2インスタンスへ取り付ける「Session Managerを許可する」「Secretsの値を参照を許可する」Roleを作成する  
 
@@ -459,7 +461,7 @@ docker container run --name nginx --restart=always -d -p 80:80 nginx
   
   ![ec8](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/ef75ecde-66f2-418f-b4df-68a6b8f099b3)
   
-## DockerコンテナにNginxとRubyのコンテナを作成する  
+## 7.DockerコンテナにNginxとRubyのコンテナを作成する  
 ### Dockerビルド前の準備を行う  
 
 - EC2Instance画面にて作成したEC2インスタンスにチェックを入れ[Connect]を選択し、Session Managerで接続する
@@ -778,7 +780,7 @@ docker container ls
 ![complete](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/0616df10-da1a-4db4-9a3b-8ac8d0151c65)
 ![docker  compl](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/b48d340d-ba3d-4e99-9f49-703b48d5230f)
 
-## AMI,Launch Templateを作成しEC2 Auto Scalingを展開する  
+## 8.AMI,Launch Templateを作成しEC2 Auto Scalingを展開する  
 ### EC2インスタンスのAMIを作成する  
 
 - Instances画面にて作成したEC2インスタンスを選択し、[Actions][Image and templates][Create image]を選択する
