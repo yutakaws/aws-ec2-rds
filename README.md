@@ -1,5 +1,7 @@
 # EC2(Docker[Rails+Nginx])+RDSの環境構築
 
+  ![awsec2rds](https://github.com/yutakaws/aws-ec2-rds/assets/138670733/688e1ecd-a977-47bb-ad76-8767781e4701)
+  
 下記の構成で構築を行う
 
 - **3つのAZ内に9つのサブネット**  
